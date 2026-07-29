@@ -1,0 +1,3 @@
+../Core/Src/application.c:19:26:Application_RunSingleTurnZeroCalibration	16	static
+../Core/Src/application.c:64:19:Application_Init	16	static
+../Core/Src/application.c:111:6:Application_Task	8	static

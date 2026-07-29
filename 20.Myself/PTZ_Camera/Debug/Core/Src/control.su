@@ -1,0 +1,16 @@
+../Core/Src/control.c:5:14:Control_Clamp	24	static
+../Core/Src/control.c:18:14:Control_ShortestPositionError	24	static
+../Core/Src/control.c:36:14:Control_UpdateTrajectory	32	static
+../Core/Src/control.c:48:13:PID_Reset	16	static
+../Core/Src/control.c:54:14:PID_Update	40	static
+../Core/Src/control.c:71:13:Control_UpdateAndSend	32	static
+../Core/Src/control.c:112:6:Control_Init	56	static
+../Core/Src/control.c:134:19:Control_Start	24	static
+../Core/Src/control.c:166:6:Control_Stop	16	static
+../Core/Src/control.c:180:6:Control_SetTargetPosition	16	static
+../Core/Src/control.c:188:6:Control_SetPositionPID	24	static
+../Core/Src/control.c:199:6:Control_Task	24	static
+../Core/Src/control.c:228:6:DualControl_Init	24	static
+../Core/Src/control.c:243:19:DualControl_Start	24	static
+../Core/Src/control.c:274:6:DualControl_Stop	16	static
+../Core/Src/control.c:288:6:DualControl_Task	24	static

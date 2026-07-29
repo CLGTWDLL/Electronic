@@ -1,0 +1,8 @@
+../Core/Src/k230_link.c:19:13:K230Link_ParseUnsigned	32	static
+../Core/Src/k230_link.c:57:13:K230Link_ParseFrame	64	static
+../Core/Src/k230_link.c:130:19:K230Link_Init	16	static
+../Core/Src/k230_link.c:156:6:K230Link_Task	40	static
+../Core/Src/k230_link.c:178:6:K230Link_GetTarget	32	static
+../Core/Src/k230_link.c:191:6:K230Link_GetStats	16	static
+../Core/Src/k230_link.c:204:6:K230Link_UartRxCpltCallback	24	static
+../Core/Src/k230_link.c:255:6:K230Link_UartErrorCallback	16	static

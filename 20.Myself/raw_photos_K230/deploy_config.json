@@ -1,0 +1,19 @@
+{
+    "chip_type": "k230",
+    "model_type": "YOLOv8Det",
+    "img_size": [
+        320,
+        256
+    ],
+    "confidence_threshold": 0.35,
+    "nms_threshold": 0.45,
+    "max_boxes_num": 10,
+    "categories": [
+        "Steel_ball"
+    ],
+    "kmodel_path": "best_320x256.kmodel",
+    "num_classes": 1,
+    "uart_baudrate": 115200,
+    "coordinate_width": 1280,
+    "coordinate_height": 720
+}

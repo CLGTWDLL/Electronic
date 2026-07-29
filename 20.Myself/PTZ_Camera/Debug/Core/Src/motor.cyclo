@@ -1,0 +1,17 @@
+../Core/Src/motor.c:15:16:Motor_Bcc	2
+../Core/Src/motor.c:27:26:Motor_Send	5
+../Core/Src/motor.c:53:17:Motor_FindById	4
+../Core/Src/motor.c:67:13:Motor_ParseFeedback	7
+../Core/Src/motor.c:113:13:Motor_RxByte	4
+../Core/Src/motor.c:128:19:Motor_Init	10
+../Core/Src/motor.c:182:19:Motor_Enable	1
+../Core/Src/motor.c:187:19:Motor_Disable	1
+../Core/Src/motor.c:192:19:Motor_SetMode	1
+../Core/Src/motor.c:198:19:Motor_SetSpeed	4
+../Core/Src/motor.c:218:19:Motor_SetSingleTurnZero	1
+../Core/Src/motor.c:229:19:Motor_RequestFeedback	1
+../Core/Src/motor.c:235:7:Motor_GetSpeed	2
+../Core/Src/motor.c:240:7:Motor_GetMultiPosition	2
+../Core/Src/motor.c:245:6:Motor_FeedbackIsFresh	4
+../Core/Src/motor.c:254:6:Motor_UartRxCpltCallback	3
+../Core/Src/motor.c:263:6:Motor_UartErrorCallback	3

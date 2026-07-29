@@ -1,0 +1,8 @@
+../Core/Src/k230_link.c:19:13:K230Link_ParseUnsigned	11
+../Core/Src/k230_link.c:57:13:K230Link_ParseFrame	29
+../Core/Src/k230_link.c:130:19:K230Link_Init	3
+../Core/Src/k230_link.c:156:6:K230Link_Task	3
+../Core/Src/k230_link.c:178:6:K230Link_GetTarget	4
+../Core/Src/k230_link.c:191:6:K230Link_GetStats	2
+../Core/Src/k230_link.c:204:6:K230Link_UartRxCpltCallback	9
+../Core/Src/k230_link.c:255:6:K230Link_UartErrorCallback	3

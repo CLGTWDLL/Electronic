@@ -1,0 +1,2 @@
+../Core/Src/uart_dispatch.c:4:6:HAL_UART_RxCpltCallback	1
+../Core/Src/uart_dispatch.c:10:6:HAL_UART_ErrorCallback	1

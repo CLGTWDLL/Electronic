@@ -1,0 +1,201 @@
+/***********************************************
+公司：轮趣科技(东莞)有限公司
+品牌：WHEELTEC
+官网：wheeltec.net
+淘宝店铺：shop114407458.taobao.com 
+速卖通: https://minibalance.aliexpress.com/store/4455017
+版本：V1.0
+修改时间：2022-10-13
+
+Brand: WHEELTEC
+Website: wheeltec.net
+Taobao shop: shop114407458.taobao.com 
+Aliexpress: https://minibalance.aliexpress.com/store/4455017
+Version: V1.0
+Update：2022-10-13
+
+All rights reserved
+***********************************************/
+#include "usart.h"	  
+
+#if SYSTEM_SUPPORT_OS
+#include "includes.h"					//ucos 使用	  
+#endif
+//////////////////////////////////////////////////////////////////
+//加入以下代码,支持printf函数,而不需要选择use MicroLIB	  
+#if 1
+#pragma import(__use_no_semihosting)             
+//标准库需要的支持函数                 
+struct __FILE 
+{ 
+	int handle; 
+
+}; 
+
+FILE __stdout;       
+//定义_sys_exit()以避免使用半主机模式    
+void _sys_exit(int x) 
+{ 
+	x = x; 
+} 
+//重定义fputc函数 
+int fputc(int ch, FILE *f)
+{      
+	while((USART1->SR&0X40)==0);//Flag_Show!=0  使用串口1   
+	USART1->DR = (u8) ch;      
+	return ch;
+}
+#endif 
+void uart_init(u32 bound){
+  //GPIO端口设置
+  GPIO_InitTypeDef GPIO_InitStructure;
+	USART_InitTypeDef USART_InitStructure;
+	NVIC_InitTypeDef NVIC_InitStrue; //定义一个中断优先级初始化的结构体
+	 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1|RCC_APB2Periph_GPIOA, ENABLE);	//使能USART1，GPIOA时钟
+  
+	//USART1_TX   GPIOA.9
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9; //PA.9
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//复用推挽输出
+  GPIO_Init(GPIOA, &GPIO_InitStructure);//初始化GPIOA.9
+   
+  //USART1_RX	  GPIOA.10初始化
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;//PA10
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//浮空输入
+  GPIO_Init(GPIOA, &GPIO_InitStructure);//初始化GPIOA.10  
+   //USART 初始化设置
+
+	USART_InitStructure.USART_BaudRate = bound;//串口波特率
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;//字长为8位数据格式
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;//一个停止位
+	USART_InitStructure.USART_Parity = USART_Parity_No;//无奇偶校验位
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;//无硬件数据流控制
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;	//收发模式
+  USART_Init(USART1, &USART_InitStructure); //初始化串口1
+ 
+  USART_Cmd(USART1, ENABLE);                    //使能串口1 
+	
+	USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);//开启串口接受中断
+	
+	NVIC_InitStrue.NVIC_IRQChannel=USART1_IRQn; //属于串口1中断
+	NVIC_InitStrue.NVIC_IRQChannelCmd=ENABLE; //中断使能
+	NVIC_InitStrue.NVIC_IRQChannelPreemptionPriority=1; //抢占优先级为1级，值越小优先级越高，0级优先级最高
+	NVIC_InitStrue.NVIC_IRQChannelSubPriority=1; //响应优先级为1级，值越小优先级越高，0级优先级最高
+	NVIC_Init(&NVIC_InitStrue); ////根据NVIC_InitStrue的参数初始化VIC寄存器，设置串口1中断优先级
+}
+
+/**************************************************************************
+函数功能：串口1初始化
+入口参数：无
+返 回 值：无
+**************************************************************************/
+void USART1_Init(void)
+{
+	GPIO_InitTypeDef GPIO_InitStrue; //定义一个引脚初始化的结构体
+	USART_InitTypeDef USART_InitStrue; //定义一个串口初始化的结构体
+	NVIC_InitTypeDef NVIC_InitStrue; //定义一个中断优先级初始化的结构体
+	
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE); //GPIOA时钟使能
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1,ENABLE); //串口1时钟使能
+	
+	GPIO_InitStrue.GPIO_Mode=GPIO_Mode_AF_PP; //A9引脚作为串口1发送数据引脚，推挽复用输出
+	GPIO_InitStrue.GPIO_Pin=GPIO_Pin_9; //引脚9
+	GPIO_InitStrue.GPIO_Speed=GPIO_Speed_10MHz; //作为串口发送数据引脚时该速度可以为任意
+  GPIO_Init(GPIOA,&GPIO_InitStrue); //初始化引脚GPIOA9
+	
+	GPIO_InitStrue.GPIO_Mode=GPIO_Mode_IN_FLOATING; //A10引脚作为串口1接收数据引脚，浮空输入或带上拉输入
+	GPIO_InitStrue.GPIO_Pin=GPIO_Pin_10; //引脚10
+	GPIO_InitStrue.GPIO_Speed=GPIO_Speed_10MHz; //作为串口接收数据引脚时该速度可以为任意
+  GPIO_Init(GPIOA,&GPIO_InitStrue); //初始化引脚GPIOA10
+	
+	USART_InitStrue.USART_BaudRate=115200; //定义串口波特率为9600bit/s
+	USART_InitStrue.USART_HardwareFlowControl=USART_HardwareFlowControl_None; //无硬件数据流控制
+	USART_InitStrue.USART_Mode=USART_Mode_Tx|USART_Mode_Rx; //发送接收兼容模式
+	USART_InitStrue.USART_Parity=USART_Parity_No; //无奇偶校验位
+	USART_InitStrue.USART_StopBits=USART_StopBits_1; //一个停止位
+	USART_InitStrue.USART_WordLength=USART_WordLength_8b; //字长为8位数据格式
+	
+	USART_Init(USART1,&USART_InitStrue);//初始化串口1
+	
+	USART_Cmd(USART1,ENABLE); //使能串口1
+	
+	USART_ITConfig(USART1,USART_IT_RXNE,ENABLE); //使能接收中断void USART1_IRQHandler(void)
+	
+	NVIC_InitStrue.NVIC_IRQChannel=USART1_IRQn; //属于串口1中断
+	NVIC_InitStrue.NVIC_IRQChannelCmd=ENABLE; //中断使能
+	NVIC_InitStrue.NVIC_IRQChannelPreemptionPriority=1; //抢占优先级为1级，值越小优先级越高，0级优先级最高
+	NVIC_InitStrue.NVIC_IRQChannelSubPriority=1; //响应优先级为1级，值越小优先级越高，0级优先级最高
+	NVIC_Init(&NVIC_InitStrue); ////根据NVIC_InitStrue的参数初始化VIC寄存器，设置串口1中断
+}
+
+/**************************************************************************
+函数功能：串口1发送数据
+入口参数：无
+返 回 值：无
+**************************************************************************/
+void usart1_send(u8 data)
+{
+	USART1->DR = data;
+	while((USART1->SR&0x40)==0);	
+}
+
+/**************************************************************************
+函数功能：串口1中断服务函数
+入口参数：无
+返回  值：无
+**************************************************************************/
+void USART1_IRQHandler(void)
+{
+	if(USART_GetITStatus(USART1, USART_IT_RXNE)) //接收到数据
+	{	  
+	 u8 temp;
+	 static u8 count,last_data,last_last_data, head_received;
+	 temp=USART1->DR;
+	 if(head_received==0)
+		{	
+			if(last_data==0xfe&&last_last_data==0xff) //判断帧头
+			{	
+			  head_received=1,count=0;	}
+			}
+	 if(head_received==1) //接收到帧头则开始接收保存数据
+		{	
+			Urxbuf[count]=temp;     
+			count++;                
+			if(count==8)
+			{
+				head_received=0;
+				count=0;
+				Usart_Compelet=1; //接收完一组数据标志
+			}
+		}
+		last_last_data=last_data;
+		last_data=temp;
+   }
+}
+
+/**************************************************************************
+函数功能：串口1发送数据函数
+入口参数：舵机A角度，舵机B角度
+返回  值：无
+**************************************************************************/
+void usart1_sendAngleBlock(int Angle_A, int Angle_B)
+{
+	int  BlockCheck=0;
+
+	BlockCheck=Angle_A^BlockCheck;
+  BlockCheck=Angle_B^BlockCheck; //异或求校验位
+	
+	usart1_send(0xff);       //帧头
+	usart1_send(0xfe);       //帧头
+	usart1_send(Angle_A);    //舵机A角度
+	usart1_send(Angle_B);    //舵机B角度
+	usart1_send(0);    
+	usart1_send(0);    
+	usart1_send(0);    
+	usart1_send(0);
+	usart1_send(0);
+	usart1_send(BlockCheck);    //BBC校验位
+}
+
+

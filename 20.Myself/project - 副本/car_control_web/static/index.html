@@ -1,0 +1,1189 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>小车控制台</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --panel: #181f26;
+      --panel-2: #202832;
+      --text: #eef3f8;
+      --muted: #9ba8b7;
+      --line: #33404d;
+      --accent: #2fb6a3;
+      --accent-2: #e6b450;
+      --danger: #e56b6f;
+      --radius: 8px;
+      font-family: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    main {
+      width: min(1280px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 20px 0 28px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 750;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--danger);
+      box-shadow: 0 0 0 4px rgba(229, 107, 111, .14);
+    }
+
+    .dot.ok {
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(47, 182, 163, .14);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(280px, .9fr) minmax(340px, 1.15fr) minmax(320px, 1.2fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      min-width: 0;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 17px;
+      line-height: 1.25;
+      font-weight: 720;
+    }
+
+    .drive-wrap {
+      display: grid;
+      justify-items: center;
+      gap: 16px;
+    }
+
+    .drive-mode {
+      width: 100%;
+      margin-bottom: 0;
+    }
+
+    .joystick {
+      position: relative;
+      width: min(260px, 78vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, rgba(47, 182, 163, .18) 0 12%, transparent 13%),
+        linear-gradient(90deg, transparent calc(50% - 1px), rgba(255,255,255,.18) 50%, transparent calc(50% + 1px)),
+        linear-gradient(0deg, transparent calc(50% - 1px), rgba(255,255,255,.18) 50%, transparent calc(50% + 1px)),
+        var(--panel-2);
+      border: 1px solid #465566;
+      box-shadow: inset 0 0 0 10px rgba(255, 255, 255, .025);
+      touch-action: none;
+      user-select: none;
+    }
+
+    .joystick.disabled {
+      opacity: .42;
+      pointer-events: none;
+    }
+
+    .joystick::before {
+      content: "前";
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .joystick::after {
+      content: "后";
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .joy-side {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .joy-side.left {
+      left: 12px;
+    }
+
+    .joy-side.right {
+      right: 12px;
+    }
+
+    .stick {
+      position: absolute;
+      width: 72px;
+      height: 72px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: #dbe7ef;
+      border: 7px solid var(--accent);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, .35);
+      pointer-events: none;
+    }
+
+    .readout {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .readout.gyro-readout {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .metric {
+      min-width: 0;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: 72px 1fr 52px;
+      align-items: center;
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    output {
+      color: var(--text);
+      font-size: 14px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mode,
+    .step-size {
+      display: grid;
+      gap: 6px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      padding: 4px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+    }
+
+    .mode {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .work-mode {
+      grid-template-columns: repeat(4, 1fr);
+      margin-bottom: 16px;
+    }
+
+    .step-size {
+      grid-template-columns: repeat(3, 1fr);
+      margin-bottom: 0;
+      width: min(260px, 100%);
+    }
+
+    .mode button,
+    .step-size button {
+      min-height: 36px;
+      border: 0;
+      border-radius: 6px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .mode button.active,
+    .step-size button.active {
+      color: #08100f;
+      background: var(--accent);
+      font-weight: 720;
+    }
+
+    .step-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .step-toolbar span {
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .step-row {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      align-items: center;
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .step-control {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-button {
+      width: 100%;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel-2);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .step-button:active {
+      background: var(--accent);
+      color: #08100f;
+    }
+
+    .step-button.pressed {
+      border-color: var(--accent);
+      background: rgba(47, 182, 163, .22);
+      color: var(--text);
+    }
+
+    .gripper {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .switch-row {
+      display: grid;
+      grid-template-columns: 72px 60px 64px;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 56px;
+      height: 30px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .switch span {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      transition: background .18s ease, border-color .18s ease;
+    }
+
+    .switch span::before {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: transform .18s ease, background .18s ease;
+    }
+
+    .switch input:checked + span {
+      background: rgba(47, 182, 163, .22);
+      border-color: var(--accent);
+    }
+
+    .switch input:checked + span::before {
+      transform: translateX(26px);
+      background: var(--accent);
+    }
+
+    .switch-state {
+      color: var(--text);
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .gyro-panel {
+      width: 100%;
+      display: grid;
+      gap: 10px;
+    }
+
+    .gyro-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .permission-button {
+      min-height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--text);
+      background: var(--panel-2);
+      cursor: pointer;
+      padding: 0 12px;
+    }
+
+    .permission-button:active {
+      background: var(--accent);
+      color: #08100f;
+    }
+
+    .telemetry {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .telemetry h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .telemetry-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .telemetry-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+
+    .telemetry-line span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .telemetry-line strong {
+      font-size: 16px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .video-box {
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .video-box h2 {
+      padding: 16px 16px 0;
+      margin-bottom: 12px;
+    }
+
+    .video {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: #0a0d10;
+      display: block;
+      object-fit: contain;
+      border-top: 1px solid var(--line);
+    }
+
+    @media (max-width: 1080px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .video-box {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: min(100vw - 20px, 560px);
+        padding-top: 14px;
+      }
+
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .grid,
+      .telemetry {
+        grid-template-columns: 1fr;
+      }
+
+      .readout {
+        grid-template-columns: 1fr;
+      }
+
+      .readout.gyro-readout {
+        grid-template-columns: 1fr;
+      }
+
+      .step-toolbar,
+      .step-row,
+      .switch-row {
+        align-items: stretch;
+        grid-template-columns: 1fr;
+      }
+
+      .step-toolbar {
+        flex-direction: column;
+      }
+
+      .step-size {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>小车控制台</h1>
+      <div class="status"><span id="statusDot" class="dot"></span><span id="statusText">未连接</span></div>
+    </header>
+
+    <div class="mode work-mode" role="group" aria-label="运行模式">
+      <button type="button" class="active" data-work-mode="manual">手动控制</button>
+      <button type="button" data-work-mode="auto1">传感器循迹</button>
+      <button type="button" data-work-mode="auto2">视觉循迹</button>
+      <button type="button" data-work-mode="auto3">融合循迹</button>
+    </div>
+
+    <div class="grid">
+      <section>
+        <h2>底盘控制</h2>
+        <div class="drive-wrap">
+          <div class="mode drive-mode" role="group" aria-label="底盘控制模式">
+            <button id="joystickMode" class="active" type="button">摇杆模式</button>
+            <button id="gyroMode" type="button">陀螺仪模式</button>
+          </div>
+
+          <div id="joystick" class="joystick" aria-label="底盘方向摇杆">
+            <span class="joy-side left">左</span>
+            <span class="joy-side right">右</span>
+            <div id="stick" class="stick"></div>
+          </div>
+
+          <div class="readout">
+            <div class="metric"><span>左右 X</span><strong id="driveX">0.00</strong></div>
+            <div class="metric"><span>前后 Y</span><strong id="driveY">0.00</strong></div>
+          </div>
+
+          <div class="gyro-panel">
+            <div class="gyro-header">
+              <span id="gyroStatus">陀螺仪未启用</span>
+              <button id="gyroPermission" class="permission-button" type="button">授权</button>
+            </div>
+            <div class="readout gyro-readout">
+              <div class="metric"><span>Alpha</span><strong id="gyroAlpha">--</strong></div>
+              <div class="metric"><span>Beta</span><strong id="gyroBeta">--</strong></div>
+              <div class="metric"><span>Gamma</span><strong id="gyroGamma">--</strong></div>
+              <div class="metric"><span>Acc X</span><strong id="accX">--</strong></div>
+              <div class="metric"><span>Acc Y</span><strong id="accY">--</strong></div>
+              <div class="metric"><span>Acc Z</span><strong id="accZ">--</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>机械臂</h2>
+        <div class="mode" role="group" aria-label="机械臂模式">
+          <button id="axisMode" class="active" type="button">轴模式</button>
+          <button id="translateMode" type="button">平移模式</button>
+        </div>
+
+        <div class="step-toolbar">
+          <span>增减量</span>
+          <div id="stepSize" class="step-size" role="group" aria-label="增减量">
+            <button type="button" data-step="0.1">0.1</button>
+            <button type="button" data-step="1" class="active">1</button>
+            <button type="button" data-step="10">10</button>
+          </div>
+        </div>
+
+        <div class="step-row">
+          <label id="armLabel1">轴 1</label>
+          <div class="step-control">
+            <button class="step-button" type="button" data-index="0" data-direction="-1">-</button>
+            <button class="step-button" type="button" data-index="0" data-direction="1">+</button>
+          </div>
+        </div>
+        <div class="step-row">
+          <label id="armLabel2">轴 2</label>
+          <div class="step-control">
+            <button class="step-button" type="button" data-index="1" data-direction="-1">-</button>
+            <button class="step-button" type="button" data-index="1" data-direction="1">+</button>
+          </div>
+        </div>
+        <div class="step-row">
+          <label id="armLabel3">轴 3</label>
+          <div class="step-control">
+            <button class="step-button" type="button" data-index="2" data-direction="-1">-</button>
+            <button class="step-button" type="button" data-index="2" data-direction="1">+</button>
+          </div>
+        </div>
+
+        <div class="gripper">
+          <div class="switch-row">
+            <label for="gripperSwitch">夹爪</label>
+            <label class="switch">
+              <input id="gripperSwitch" type="checkbox">
+              <span></span>
+            </label>
+            <strong id="gripperOut" class="switch-state">关闭</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="video-box">
+        <h2>视频流</h2>
+        <img class="video" src="/video_feed" alt="OpenCV 视频流">
+      </section>
+
+      <section>
+        <h2>机械臂当前状态</h2>
+        <div class="telemetry">
+          <div>
+            <h3>轴状态</h3>
+            <div class="telemetry-list">
+              <div class="telemetry-line"><span>轴 1</span><strong id="axisState1">0.00</strong></div>
+              <div class="telemetry-line"><span>轴 2</span><strong id="axisState2">0.00</strong></div>
+              <div class="telemetry-line"><span>轴 3</span><strong id="axisState3">0.00</strong></div>
+            </div>
+          </div>
+          <div>
+            <h3>坐标状态</h3>
+            <div class="telemetry-list">
+              <div class="telemetry-line"><span>X</span><strong id="posX">0.00</strong></div>
+              <div class="telemetry-line"><span>Y</span><strong id="posY">0.00</strong></div>
+              <div class="telemetry-line"><span>Z</span><strong id="posZ">0.00</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const state = {
+      work_mode: "manual",
+      drive: { mode: "joystick", x: 0, y: 0, active: false },
+      arm: {
+        mode: "axis",
+        step: 1,
+        buttons: {
+          axis: {
+            axis1: { negative: false, positive: false },
+            axis2: { negative: false, positive: false },
+            axis3: { negative: false, positive: false }
+          },
+          translation: {
+            x: { negative: false, positive: false },
+            y: { negative: false, positive: false },
+            z: { negative: false, positive: false }
+          }
+        },
+        gripper: 0
+      },
+      gyro: {
+        supported: typeof DeviceOrientationEvent !== "undefined" || typeof DeviceMotionEvent !== "undefined",
+        active: false,
+        permission: "unknown",
+        orientation: { alpha: null, beta: null, gamma: null, absolute: false },
+        acceleration: { x: null, y: null, z: null },
+        acceleration_including_gravity: { x: null, y: null, z: null },
+        rotation_rate: { alpha: null, beta: null, gamma: null },
+        interval: 0,
+        updated_at: 0
+      }
+    };
+
+    const joystick = document.getElementById("joystick");
+    const stick = document.getElementById("stick");
+    const joystickMode = document.getElementById("joystickMode");
+    const gyroMode = document.getElementById("gyroMode");
+    const gyroPermission = document.getElementById("gyroPermission");
+    const gyroStatus = document.getElementById("gyroStatus");
+    const workModeButtons = document.querySelectorAll("[data-work-mode]");
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+    const armLabels = [
+      document.getElementById("armLabel1"),
+      document.getElementById("armLabel2"),
+      document.getElementById("armLabel3")
+    ];
+    const axisMode = document.getElementById("axisMode");
+    const translateMode = document.getElementById("translateMode");
+    const stepButtons = document.querySelectorAll("#stepSize button");
+    const armStepButtons = document.querySelectorAll(".step-button");
+    const gripperSwitch = document.getElementById("gripperSwitch");
+    const gripperOut = document.getElementById("gripperOut");
+
+    let dirty = true;
+    let pointerId = null;
+    let sending = false;
+    let currentStep = 1;
+    let sensorListening = false;
+    let driveInputMode = "joystick";
+    let lastControlOkAt = 0;
+
+    function fmt(value) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) {
+        return "--";
+      }
+      return number.toFixed(2);
+    }
+
+    function clamp(value, lower, upper) {
+      return Math.max(lower, Math.min(upper, value));
+    }
+
+    function sensorNumber(value) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function deadzone(value) {
+      return Math.abs(value) < 0.04 ? 0 : value;
+    }
+
+    function setStatus(ok, text) {
+      statusDot.classList.toggle("ok", ok);
+      statusText.textContent = text;
+    }
+
+    function updateDriveReadout() {
+      document.getElementById("driveX").textContent = fmt(state.drive.x);
+      document.getElementById("driveY").textContent = fmt(state.drive.y);
+    }
+
+    function setDriveMode(mode) {
+      driveInputMode = mode;
+      state.drive.mode = mode;
+      joystickMode.classList.toggle("active", mode === "joystick");
+      gyroMode.classList.toggle("active", mode === "gyro");
+      joystick.classList.toggle("disabled", mode === "gyro");
+      state.gyro.active = mode === "gyro";
+
+      if (mode === "joystick") {
+        centerJoystick();
+        state.drive.x = 0;
+        state.drive.y = 0;
+        state.drive.active = false;
+      } else {
+        centerJoystick();
+        applyGyroDrive();
+      }
+
+      updateDriveReadout();
+      renderGyroValues();
+      dirty = true;
+    }
+
+    function centerJoystick() {
+      stick.style.transform = "translate(-50%, -50%)";
+    }
+
+    function setJoystickFromEvent(event) {
+      if (driveInputMode !== "joystick") {
+        return;
+      }
+      const rect = joystick.getBoundingClientRect();
+      const radius = rect.width / 2;
+      const max = radius - stick.offsetWidth / 2 - 8;
+      const rawX = event.clientX - rect.left - radius;
+      const rawY = event.clientY - rect.top - radius;
+      const distance = Math.hypot(rawX, rawY);
+      const scale = distance > max ? max / distance : 1;
+      const px = rawX * scale;
+      const py = rawY * scale;
+
+      stick.style.transform = `translate(calc(-50% + ${px}px), calc(-50% + ${py}px))`;
+      state.drive.x = Number((px / max).toFixed(3));
+      state.drive.y = Number((-py / max).toFixed(3));
+      state.drive.active = true;
+      updateDriveReadout();
+      dirty = true;
+    }
+
+    function resetJoystick() {
+      centerJoystick();
+      if (driveInputMode === "joystick") {
+        state.drive.x = 0;
+        state.drive.y = 0;
+        state.drive.active = false;
+      }
+      updateDriveReadout();
+      dirty = true;
+    }
+
+    joystick.addEventListener("pointerdown", (event) => {
+      pointerId = event.pointerId;
+      joystick.setPointerCapture(pointerId);
+      setJoystickFromEvent(event);
+    });
+
+    joystick.addEventListener("pointermove", (event) => {
+      if (event.pointerId === pointerId) {
+        setJoystickFromEvent(event);
+      }
+    });
+
+    joystick.addEventListener("pointerup", (event) => {
+      if (event.pointerId === pointerId) {
+        pointerId = null;
+        resetJoystick();
+      }
+    });
+
+    joystick.addEventListener("pointercancel", resetJoystick);
+    joystick.addEventListener("lostpointercapture", () => {
+      pointerId = null;
+      resetJoystick();
+    });
+
+    function setArmMode(mode) {
+      state.arm.mode = mode;
+      axisMode.classList.toggle("active", mode === "axis");
+      translateMode.classList.toggle("active", mode === "translate");
+      const labels = mode === "axis" ? ["轴 1", "轴 2", "轴 3"] : ["X", "Y", "Z"];
+      armLabels.forEach((label, index) => {
+        label.textContent = labels[index];
+      });
+      releaseArmButtons();
+      renderArmButtonState();
+      dirty = true;
+    }
+
+    function setWorkMode(mode) {
+      state.work_mode = mode;
+      workModeButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.workMode === mode);
+      });
+      dirty = true;
+    }
+
+    function armButtonTarget(index) {
+      if (state.arm.mode === "axis") {
+        return state.arm.buttons.axis[`axis${index + 1}`];
+      }
+      return state.arm.buttons.translation[["x", "y", "z"][index]];
+    }
+
+    function setArmButton(button, pressed) {
+      const index = Number(button.dataset.index);
+      const direction = button.dataset.direction === "1" ? "positive" : "negative";
+      armButtonTarget(index)[direction] = pressed;
+      renderArmButtonState();
+      dirty = true;
+      sendControl();
+    }
+
+    function releaseArmButtons() {
+      Object.values(state.arm.buttons.axis).forEach((pair) => {
+        pair.negative = false;
+        pair.positive = false;
+      });
+      Object.values(state.arm.buttons.translation).forEach((pair) => {
+        pair.negative = false;
+        pair.positive = false;
+      });
+    }
+
+    function renderArmButtonState() {
+      armStepButtons.forEach((button) => {
+        const index = Number(button.dataset.index);
+        const direction = button.dataset.direction === "1" ? "positive" : "negative";
+        button.classList.toggle("pressed", armButtonTarget(index)[direction]);
+      });
+    }
+
+    function renderRobotDisplay(display) {
+      const angles = display?.angles || {};
+      const position = display?.position || {};
+      document.getElementById("axisState1").textContent = `${fmt(angles.axis1)}°`;
+      document.getElementById("axisState2").textContent = `${fmt(angles.axis2)}°`;
+      document.getElementById("axisState3").textContent = `${fmt(angles.axis3)}°`;
+      document.getElementById("posX").textContent = fmt(position.x);
+      document.getElementById("posY").textContent = fmt(position.y);
+      document.getElementById("posZ").textContent = fmt(position.z);
+    }
+
+    function renderGripper() {
+      const opened = state.arm.gripper >= 0.5;
+      gripperSwitch.checked = opened;
+      gripperOut.textContent = opened ? "打开" : "关闭";
+    }
+
+    joystickMode.addEventListener("click", () => setDriveMode("joystick"));
+    gyroMode.addEventListener("click", () => {
+      setDriveMode("gyro");
+      requestGyroAccess();
+    });
+
+    axisMode.addEventListener("click", () => setArmMode("axis"));
+    translateMode.addEventListener("click", () => setArmMode("translate"));
+
+    workModeButtons.forEach((button) => {
+      button.addEventListener("click", () => setWorkMode(button.dataset.workMode));
+    });
+
+    stepButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        currentStep = Number(button.dataset.step);
+        state.arm.step = currentStep;
+        stepButtons.forEach((item) => {
+          item.classList.toggle("active", item === button);
+        });
+        dirty = true;
+      });
+    });
+
+    armStepButtons.forEach((button) => {
+      button.addEventListener("pointerdown", (event) => {
+        button.setPointerCapture(event.pointerId);
+        setArmButton(button, true);
+      });
+      button.addEventListener("pointerup", () => {
+        setArmButton(button, false);
+      });
+      button.addEventListener("pointercancel", () => {
+        setArmButton(button, false);
+      });
+      button.addEventListener("lostpointercapture", () => {
+        setArmButton(button, false);
+      });
+    });
+
+    gripperSwitch.addEventListener("change", () => {
+      state.arm.gripper = gripperSwitch.checked ? 1 : 0;
+      renderGripper();
+      dirty = true;
+    });
+
+    window.addEventListener("blur", () => {
+      releaseArmButtons();
+      renderArmButtonState();
+      dirty = true;
+      sendControl();
+    });
+
+    gyroPermission.addEventListener("click", requestGyroAccess);
+
+    function startSensorListeners() {
+      if (sensorListening) {
+        return;
+      }
+      if (typeof DeviceOrientationEvent !== "undefined") {
+        window.addEventListener("deviceorientation", handleDeviceOrientation);
+      }
+      if (typeof DeviceMotionEvent !== "undefined") {
+        window.addEventListener("devicemotion", handleDeviceMotion);
+      }
+      sensorListening = true;
+    }
+
+    async function requestGyroAccess() {
+      const hasOrientation = typeof DeviceOrientationEvent !== "undefined";
+      const hasMotion = typeof DeviceMotionEvent !== "undefined";
+      state.gyro.supported = hasOrientation || hasMotion;
+
+      if (!state.gyro.supported) {
+        state.gyro.permission = "unsupported";
+        renderGyroValues();
+        dirty = true;
+        return;
+      }
+
+      try {
+        if (hasOrientation && typeof DeviceOrientationEvent.requestPermission === "function") {
+          const orientationPermission = await DeviceOrientationEvent.requestPermission();
+          if (orientationPermission !== "granted") {
+            state.gyro.permission = orientationPermission;
+            renderGyroValues();
+            dirty = true;
+            return;
+          }
+        }
+
+        if (hasMotion && typeof DeviceMotionEvent.requestPermission === "function") {
+          const motionPermission = await DeviceMotionEvent.requestPermission();
+          if (motionPermission !== "granted") {
+            state.gyro.permission = motionPermission;
+            renderGyroValues();
+            dirty = true;
+            return;
+          }
+        }
+
+        state.gyro.permission = "granted";
+        startSensorListeners();
+      } catch (error) {
+        state.gyro.permission = "denied";
+      }
+
+      renderGyroValues();
+      dirty = true;
+    }
+
+    function updateGyroTimestamp() {
+      state.gyro.updated_at = Date.now() / 1000;
+    }
+
+    function handleDeviceOrientation(event) {
+      state.gyro.supported = true;
+      if (state.gyro.permission === "unknown") {
+        state.gyro.permission = "granted";
+      }
+      state.gyro.orientation = {
+        alpha: sensorNumber(event.alpha),
+        beta: sensorNumber(event.beta),
+        gamma: sensorNumber(event.gamma),
+        absolute: Boolean(event.absolute)
+      };
+      updateGyroTimestamp();
+      applyGyroDrive();
+      renderGyroValues();
+      dirty = true;
+    }
+
+    function handleDeviceMotion(event) {
+      state.gyro.supported = true;
+      if (state.gyro.permission === "unknown") {
+        state.gyro.permission = "granted";
+      }
+      state.gyro.acceleration = {
+        x: sensorNumber(event.acceleration?.x),
+        y: sensorNumber(event.acceleration?.y),
+        z: sensorNumber(event.acceleration?.z)
+      };
+      state.gyro.acceleration_including_gravity = {
+        x: sensorNumber(event.accelerationIncludingGravity?.x),
+        y: sensorNumber(event.accelerationIncludingGravity?.y),
+        z: sensorNumber(event.accelerationIncludingGravity?.z)
+      };
+      state.gyro.rotation_rate = {
+        alpha: sensorNumber(event.rotationRate?.alpha),
+        beta: sensorNumber(event.rotationRate?.beta),
+        gamma: sensorNumber(event.rotationRate?.gamma)
+      };
+      state.gyro.interval = sensorNumber(event.interval) || 0;
+      updateGyroTimestamp();
+      renderGyroValues();
+      dirty = true;
+    }
+
+    function applyGyroDrive() {
+      if (driveInputMode !== "gyro") {
+        return;
+      }
+
+      const beta = Number(state.gyro.orientation.beta);
+      const gamma = Number(state.gyro.orientation.gamma);
+      const hasTilt = Number.isFinite(beta) || Number.isFinite(gamma);
+
+      if (!hasTilt) {
+        state.drive.x = 0;
+        state.drive.y = 0;
+        state.drive.active = false;
+        updateDriveReadout();
+        return;
+      }
+
+      state.drive.x = deadzone(clamp((Number.isFinite(gamma) ? gamma : 0) / 35, -1, 1));
+      state.drive.y = deadzone(clamp(-(Number.isFinite(beta) ? beta : 0) / 35, -1, 1));
+      state.drive.active = true;
+      updateDriveReadout();
+    }
+
+    function renderGyroValues(gyro = state.gyro) {
+      const orientation = gyro.orientation || {};
+      const acceleration = gyro.acceleration || {};
+      document.getElementById("gyroAlpha").textContent = fmt(orientation.alpha);
+      document.getElementById("gyroBeta").textContent = fmt(orientation.beta);
+      document.getElementById("gyroGamma").textContent = fmt(orientation.gamma);
+      document.getElementById("accX").textContent = fmt(acceleration.x);
+      document.getElementById("accY").textContent = fmt(acceleration.y);
+      document.getElementById("accZ").textContent = fmt(acceleration.z);
+
+      if (!gyro.supported) {
+        gyroStatus.textContent = "陀螺仪不可用";
+      } else if (gyro.permission === "denied") {
+        gyroStatus.textContent = "陀螺仪未授权";
+      } else if (gyro.permission === "unsupported") {
+        gyroStatus.textContent = "陀螺仪不可用";
+      } else if (driveInputMode !== "gyro") {
+        gyroStatus.textContent = "陀螺仪待机";
+      } else if (!gyro.updated_at) {
+        gyroStatus.textContent = "等待陀螺仪";
+      } else {
+        gyroStatus.textContent = "陀螺仪已连接";
+      }
+
+      gyroPermission.textContent = gyro.permission === "granted" ? "已授权" : "授权";
+    }
+
+    async function sendControl(force = false) {
+      if ((!dirty && !force) || sending) {
+        return;
+      }
+      dirty = false;
+      sending = true;
+      try {
+        const response = await fetch("/api/control", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(state)
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        lastControlOkAt = Date.now();
+        setStatus(true, "已连接");
+      } catch (error) {
+        dirty = true;
+        setStatus(false, "连接中断");
+      } finally {
+        sending = false;
+      }
+    }
+
+    async function pollState() {
+      try {
+        const response = await fetch("/api/state");
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const payload = await response.json();
+        renderRobotDisplay(payload.display || {});
+        renderGyroValues(payload.gyro || state.gyro);
+        const locallyConnected = Date.now() - lastControlOkAt <= 3000;
+        const connected = Boolean(payload.connected) || locallyConnected;
+        setStatus(connected, connected ? "已连接" : "等待控制端");
+      } catch (error) {
+        setStatus(false, "连接中断");
+      }
+    }
+
+    if (state.gyro.supported) {
+      startSensorListeners();
+    }
+
+    setDriveMode("joystick");
+    setWorkMode("manual");
+    setArmMode("axis");
+    updateDriveReadout();
+    renderRobotDisplay({});
+    renderGripper();
+    renderGyroValues();
+    setInterval(sendControl, 60);
+    setInterval(() => sendControl(true), 300);
+    setInterval(pollState, 500);
+    sendControl();
+    pollState();
+  </script>
+</body>
+</html>

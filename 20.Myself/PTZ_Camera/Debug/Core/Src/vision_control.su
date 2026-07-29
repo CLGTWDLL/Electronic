@@ -1,0 +1,5 @@
+../Core/Src/vision_control.c:8:14:VisionControl_Clamp	24	static
+../Core/Src/vision_control.c:21:14:VisionControl_ApplyDeadZone	16	static
+../Core/Src/vision_control.c:30:13:VisionControl_SetNeutral	16	static
+../Core/Src/vision_control.c:38:6:VisionControl_Init	24	static
+../Core/Src/vision_control.c:60:6:VisionControl_Task	56	static
