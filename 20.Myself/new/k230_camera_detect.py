@@ -28,6 +28,9 @@ CONFIG_PATH = DEPLOY_ROOT + "k230_deploy_config.json"
 DISPLAY_MODE = "lcd"
 CAMERA_SIZE = [640, 640]
 MAX_DETECTIONS = 20
+GC_INTERVAL_FRAMES = 15
+PERFORMANCE_LOG_INTERVAL = 60
+DROP_OLD_FRAMES = 0
 DEBUG_MODE = 0
 
 
@@ -132,6 +135,10 @@ class YoloV5RawDetection(AIBase):
         self.debug_mode = debug_mode
         self.colors = get_colors(len(labels))
         self._first_model_input_checked = False
+        self._vector_filter_available = True
+        self._vector_filter_reported = False
+        self._postprocess_count = 0
+        self._postprocess_time_total_us = 0
         self.ai2d = Ai2d(debug_mode)
         # CanMV v1.4.3 ulab ndarray has no astype(). Let AI2D produce float
         # data, then normalize it directly in preprocess().
@@ -203,6 +210,7 @@ class YoloV5RawDetection(AIBase):
         The exported model already supplies cx/cy/w/h and probabilities. KPU
         quantization/dequantization is handled by nncase_runtime.
         """
+        postprocess_start_us = time.ticks_us()
         output = results[0]
         field_count = 5 + len(self.labels)
         if len(output.shape) == 3:
@@ -220,11 +228,38 @@ class YoloV5RawDetection(AIBase):
                 )
 
         candidates = []
+        filtered_output = None
 
-        # Do not use np.where here. It is absent from some ulab builds shipped
-        # with CanMV and would terminate the program on the first frame.
-        for row_index in range(output.shape[0]):
-            row = output[row_index]
+        # This is a one-class model. Calculate objectness * class probability
+        # for all 25200 rows, then use ulab.compress to retain matching rows.
+        # Unlike ulab.where, compress can select rows without building indices.
+        # This does not truncate candidates or alter NMS.
+        if len(self.labels) == 1 and self._vector_filter_available:
+            try:
+                combined_scores = output[:, 4] * output[:, 5]
+                filtered_output = np.compress(
+                    combined_scores >= self.confidence_threshold,
+                    output,
+                    axis=0,
+                )
+                del combined_scores
+                if not self._vector_filter_reported:
+                    print("Vector candidate filter enabled: np.compress")
+                    self._vector_filter_reported = True
+            except BaseException as filter_error:
+                self._vector_filter_available = False
+                filtered_output = None
+                print(
+                    "Vector filter unavailable; using compatible loop:",
+                    filter_error,
+                )
+
+        rows_to_process = (
+            filtered_output if filtered_output is not None else output
+        )
+
+        for row_index in range(rows_to_process.shape[0]):
+            row = rows_to_process[row_index]
             objectness = float(row[4])
             if objectness < self.confidence_threshold:
                 continue
@@ -255,9 +290,29 @@ class YoloV5RawDetection(AIBase):
                 )
 
         candidates.sort(key=lambda item: item[1], reverse=True)
-        return class_aware_nms(
+        detections = class_aware_nms(
             candidates, self.nms_threshold, MAX_DETECTIONS
         )
+        postprocess_elapsed_us = time.ticks_diff(
+            time.ticks_us(), postprocess_start_us
+        )
+        self._postprocess_count += 1
+        self._postprocess_time_total_us += postprocess_elapsed_us
+        if self._postprocess_count % PERFORMANCE_LOG_INTERVAL == 0:
+            average_ms = (
+                self._postprocess_time_total_us
+                / self._postprocess_count
+                / 1000.0
+            )
+            print(
+                "Postprocess avg ms:",
+                round(average_ms, 2),
+                "candidates:",
+                len(candidates),
+                "detections:",
+                len(detections),
+            )
+        return detections
 
     def draw_result(self, osd_image, detections, fps):
         osd_image.clear()
@@ -349,12 +404,16 @@ try:
     )
     detector.config_preprocess()
     print("Kmodel and preprocess ready")
+    print("Old frames dropped before inference:", DROP_OLD_FRAMES)
 
     last_tick = time.ticks_ms()
     fps = 0.0
+    frame_count = 0
     while True:
         os.exitpoint()
         with ScopedTiming("total", DEBUG_MODE > 0):
+            for _ in range(DROP_OLD_FRAMES):
+                pipeline.get_frame()
             frame = pipeline.get_frame()
             detections = detector.run(frame)
 
@@ -369,7 +428,11 @@ try:
                 pipeline.osd_img, detections, fps
             )
             pipeline.show_image()
-            gc.collect()
+            frame_count += 1
+            if frame_count % PERFORMANCE_LOG_INTERVAL == 0:
+                print("Display FPS:", round(fps, 2))
+            if frame_count % GC_INTERVAL_FRAMES == 0:
+                gc.collect()
 
         time.sleep_ms(1)
 

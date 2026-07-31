@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "image_directory": "F:\\BaiduNetdiskDownload\\K230\\20.Myself\\camera_calibration_640",
+  "image_size": {
+    "width": 640,
+    "height": 640
+  },
+  "board": {
+    "inner_corners_columns": 11,
+    "inner_corners_rows": 8,
+    "square_size_mm": 15.0
+  },
+  "input_image_count": 30,
+  "successful_image_count": 29,
+  "total_rms_pixels": 0.3573903643727539,
+  "mean_per_image_reprojection_error_pixels": 0.34502249010109637,
+  "camera_matrix": [
+    [
+      399.2629203175853,
+      0.0,
+      323.76503529765824
+    ],
+    [
+      0.0,
+      709.3933023695088,
+      322.313689128811
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "distortion_coefficients": [
+    -0.024561959014452687,
+    0.07151172080583726,
+    -0.0005181649161795926,
+    0.0010568824001919953,
+    -0.07885293349200934
+  ],
+  "images": [
+    {
+      "image": "calib_001.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_001.jpg",
+      "reprojection_error_pixels": 0.23736156362870886
+    },
+    {
+      "image": "calib_002.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_002.jpg",
+      "reprojection_error_pixels": 0.2928113896237941
+    },
+    {
+      "image": "calib_003.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_003.jpg",
+      "reprojection_error_pixels": 0.22738393317023267
+    },
+    {
+      "image": "calib_004.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_004.jpg",
+      "reprojection_error_pixels": 0.4168907596062773
+    },
+    {
+      "image": "calib_005.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_005.jpg",
+      "reprojection_error_pixels": 0.5481229983459601
+    },
+    {
+      "image": "calib_006.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_006.jpg",
+      "reprojection_error_pixels": 0.3506621700277018
+    },
+    {
+      "image": "calib_007.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_007.jpg",
+      "reprojection_error_pixels": 0.48138241618190714
+    },
+    {
+      "image": "calib_008.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_008.jpg",
+      "reprojection_error_pixels": 0.28309866195343636
+    },
+    {
+      "image": "calib_009.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_009.jpg",
+      "reprojection_error_pixels": 0.29800589893490237
+    },
+    {
+      "image": "calib_010.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_010.jpg",
+      "reprojection_error_pixels": 0.2994656711799463
+    },
+    {
+      "image": "calib_011.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_011.jpg",
+      "reprojection_error_pixels": 0.1997914217575158
+    },
+    {
+      "image": "calib_012.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_012.jpg",
+      "reprojection_error_pixels": 0.31452559589699153
+    },
+    {
+      "image": "calib_013.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_013.jpg",
+      "reprojection_error_pixels": 0.27286711193169627
+    },
+    {
+      "image": "calib_014.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_014.jpg",
+      "reprojection_error_pixels": 0.4441836253263299
+    },
+    {
+      "image": "calib_015.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_015.jpg",
+      "reprojection_error_pixels": 0.2980756448281712
+    },
+    {
+      "image": "calib_016.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_016.jpg",
+      "reprojection_error_pixels": 0.4416822903796717
+    },
+    {
+      "image": "calib_017.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_017.jpg",
+      "reprojection_error_pixels": 0.2391038048658841
+    },
+    {
+      "image": "calib_018.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_018.jpg",
+      "reprojection_error_pixels": 0.3546182707725284
+    },
+    {
+      "image": "calib_019.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_019.jpg",
+      "reprojection_error_pixels": 0.4036624371795043
+    },
+    {
+      "image": "calib_020.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_020.jpg",
+      "reprojection_error_pixels": 0.28195018501471847
+    },
+    {
+      "image": "calib_021.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_021.jpg",
+      "reprojection_error_pixels": 0.2640880972966308
+    },
+    {
+      "image": "calib_022.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_022.jpg",
+      "reprojection_error_pixels": 0.27468740350419957
+    },
+    {
+      "image": "calib_023.jpg",
+      "corners_found": false,
+      "corner_result": "corners_calib_023.jpg"
+    },
+    {
+      "image": "calib_024.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_024.jpg",
+      "reprojection_error_pixels": 0.4627977108958943
+    },
+    {
+      "image": "calib_025.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_025.jpg",
+      "reprojection_error_pixels": 0.45512481580907066
+    },
+    {
+      "image": "calib_026.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_026.jpg",
+      "reprojection_error_pixels": 0.5006073303057073
+    },
+    {
+      "image": "calib_027.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_027.jpg",
+      "reprojection_error_pixels": 0.34551737261581916
+    },
+    {
+      "image": "calib_028.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_028.jpg",
+      "reprojection_error_pixels": 0.2224432947465678
+    },
+    {
+      "image": "calib_029.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_029.jpg",
+      "reprojection_error_pixels": 0.374139692998758
+    },
+    {
+      "image": "calib_030.jpg",
+      "corners_found": true,
+      "corner_result": "corners_calib_030.jpg",
+      "reprojection_error_pixels": 0.4206006441532686
+    }
+  ]
+}

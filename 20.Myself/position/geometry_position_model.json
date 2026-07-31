@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "model_type": "undistorted_ray_to_3d_pipe_axis_closest_point",
+  "units": {
+    "translation_T": "cm",
+    "axis_coordinate": "cm",
+    "runtime_secondary_output": "mm"
+  },
+  "coordinate_definition": {
+    "zero": "physical pipe centre",
+    "positive": "from centre toward image-left",
+    "negative": "from centre toward image-right",
+    "input_image_coordinates": "raw distorted 640x640 pixels",
+    "fit_image_coordinates": "undistorted 640x640 pixels with P=camera_matrix",
+    "zero_is_image_centre": false
+  },
+  "camera": {
+    "image_size": [
+      640,
+      640
+    ],
+    "camera_matrix": [
+      [
+        399.2629203175853,
+        0.0,
+        323.76503529765824
+      ],
+      [
+        0.0,
+        709.3933023695088,
+        322.313689128811
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "distortion_coefficients": [
+      -0.024561959014452687,
+      0.07151172080583726,
+      -0.0005181649161795926,
+      0.0010568824001919953,
+      -0.07885293349200934
+    ],
+    "calibration_rms_px": 0.3573903643727539,
+    "runtime_undistortion": "iterative inverse Brown-Conrady on detected centre pixel"
+  },
+  "pipe_axis_camera_coordinates": {
+    "equation": "P_cm(s) = T_cm + s_cm * r",
+    "T_cm": [
+      0.0987277555736132,
+      0.8137563484083293,
+      18.46969916707769
+    ],
+    "r": [
+      -0.9955128674309658,
+      -0.040887940731959276,
+      -0.08533643466934972
+    ],
+    "r_norm": 1.0,
+    "zero_point_undistorted_pixel": [
+      325.8992515428792,
+      353.5688437525815
+    ],
+    "plus_one_cm_undistorted_pixel": [
+      304.2890791348528,
+      352.136189913791
+    ]
+  },
+  "fit": {
+    "initialization": "homogeneous 1D-PnP from undistorted rays",
+    "refinement": "custom Huber robust LM in undistorted pixel space",
+    "processing_order": "undistort every sample, per-position MAD rejection, global T/r fit",
+    "optimizer": {
+      "accepted_iterations": 37,
+      "robust_cost": 40559.36662011277,
+      "final_damping": 333333.3333333333
+    },
+    "mad_z_threshold": 3.5,
+    "huber_delta_px": 1.5
+  },
+  "per_position": [
+    {
+      "real_cm": -10.0,
+      "raw_count": 100,
+      "kept_count": 93,
+      "rejected_count": 7,
+      "undistorted_median_x": 531.0360515485995,
+      "undistorted_median_y": 295.43348367664544,
+      "geometric_reprojection_rmse_px": 72.66664587464271,
+      "geometric_reprojection_median_px": 71.76610187943069,
+      "geometric_reprojection_max_px": 83.05762076896482,
+      "predicted_cm_median": -9.817393525713703,
+      "position_bias_cm": 0.1740022905259462,
+      "position_rmse_cm": 0.19994703832033647,
+      "position_max_abs_error_cm": 0.47044448675273287,
+      "ray_axis_distance_median_cm": 1.944522974411023,
+      "anomalous_fixed_line_position": false
+    },
+    {
+      "real_cm": -8.0,
+      "raw_count": 100,
+      "kept_count": 88,
+      "rejected_count": 12,
+      "undistorted_median_x": 487.11974420876254,
+      "undistorted_median_y": 337.58603284163405,
+      "geometric_reprojection_rmse_px": 27.478890687373667,
+      "geometric_reprojection_median_px": 27.561817146602152,
+      "geometric_reprojection_max_px": 28.344050100120946,
+      "predicted_cm_median": -7.725083216090542,
+      "position_bias_cm": 0.27769156406046674,
+      "position_rmse_cm": 0.27895871278960105,
+      "position_max_abs_error_cm": 0.34235009562087804,
+      "ray_axis_distance_median_cm": 0.7216587582575233,
+      "anomalous_fixed_line_position": false
+    },
+    {
+      "real_cm": -6.0,
+      "raw_count": 100,
+      "kept_count": 95,
+      "rejected_count": 5,
+      "undistorted_median_x": 452.8139445878088,
+      "undistorted_median_y": 363.4584587122532,
+      "geometric_reprojection_rmse_px": 3.8294738618689466,
+      "geometric_reprojection_median_px": 2.9012998793482816,
+      "geometric_reprojection_max_px": 9.686781269764957,
+      "predicted_cm_median": -6.0664761556804265,
+      "position_bias_cm": -0.06360341023393763,
+      "position_rmse_cm": 0.0865137864427923,
+      "position_max_abs_error_cm": 0.1773859168923222,
+      "ray_axis_distance_median_cm": 0.06191238967596928,
+      "anomalous_fixed_line_position": false
+    },
+    {
+      "real_cm": -4.0,
+      "raw_count": 100,
+      "kept_count": 100,
+      "rejected_count": 0,
+      "undistorted_median_x": 406.38681726451307,
+      "undistorted_median_y": 392.09239983823977,
+      "geometric_reprojection_rmse_px": 32.64516531789443,
+      "geometric_reprojection_median_px": 33.14324673800328,
+      "geometric_reprojection_max_px": 35.97826175280126,
+      "predicted_cm_median": -3.8201932127158384,
+      "position_bias_cm": 0.16466997968668814,
+      "position_rmse_cm": 0.17741816799834018,
+      "position_max_abs_error_cm": 0.2626164833811444,
+      "ray_axis_distance_median_cm": 0.8748341339372907,
+      "anomalous_fixed_line_position": false
+    },
+    {
+      "real_cm": -2.0,
+      "raw_count": 100,
+      "kept_count": 99,
+      "rejected_count": 1,
+      "undistorted_median_x": 378.86915785938027,
+      "undistorted_median_y": 422.00783133711514,
+      "geometric_reprojection_rmse_px": 66.54605202950515,
+      "geometric_reprojection_median_px": 66.58090838347361,
+      "geometric_reprojection_max_px": 68.92470790176185,
+      "predicted_cm_median": -2.5090056042648348,
+      "position_bias_cm": -0.5176628618688898,
+      "position_rmse_cm": 0.5237726705094978,
+      "position_max_abs_error_cm": 0.6537768936656949,
+      "ray_axis_distance_median_cm": 1.696001938074804,
+      "anomalous_fixed_line_position": false
+    },
+    {
+      "real_cm": 0.0,
+      "raw_count": 100,
+      "kept_count": 95,
+      "rejected_count": 5,
+      "undistorted_median_x": 306.9126312918053,
+      "undistorted_median_y": 380.8908080639131,
+      "geometric_reprojection_rmse_px": 32.82498106457937,
+      "geometric_reprojection_median_px": 32.91767946486814,
+      "geometric_reprojection_max_px": 37.25287269233624,
+      "predicted_cm_median": 0.8504159792313335,
+      "position_bias_cm": 0.8530879655107643,
+      "position_rmse_cm": 0.853661664440254,
+      "position_max_abs_error_cm": 0.9346554414864294,
+      "ray_axis_distance_median_cm": 0.7315543738259578,
+      "anomalous_fixed_line_position": true
+    },
+    {
+      "real_cm": 2.0,
+      "raw_count": 100,
+      "kept_count": 77,
+      "rejected_count": 23,
+      "undistorted_median_x": 279.9705762052129,
+      "undistorted_median_y": 337.4168348997443,
+      "geometric_reprojection_rmse_px": 13.36109789191919,
+      "geometric_reprojection_median_px": 13.189469863495008,
+      "geometric_reprojection_max_px": 17.838653833411275,
+      "predicted_cm_median": 2.1196476198282115,
+      "position_bias_cm": 0.11740147411958393,
+      "position_rmse_cm": 0.12222666068006385,
+      "position_max_abs_error_cm": 0.19381689859014095,
+      "ray_axis_distance_median_cm": 0.32977861781035506,
+      "anomalous_fixed_line_position": false
+    },
+    {
+      "real_cm": 4.0,
+      "raw_count": 100,
+      "kept_count": 84,
+      "rejected_count": 16,
+      "undistorted_median_x": 240.24463683953923,
+      "undistorted_median_y": 347.93809670593623,
+      "geometric_reprojection_rmse_px": 2.3274315968985912,
+      "geometric_reprojection_median_px": 2.2566689272738376,
+      "geometric_reprojection_max_px": 4.0468127195538734,
+      "predicted_cm_median": 3.909247643739626,
+      "position_bias_cm": -0.0817200302127224,
+      "position_rmse_cm": 0.09257166315263862,
+      "position_max_abs_error_cm": 0.15668446841376404,
+      "ray_axis_distance_median_cm": 0.019028120189873675,
+      "anomalous_fixed_line_position": false
+    },
+    {
+      "real_cm": 6.0,
+      "raw_count": 100,
+      "kept_count": 93,
+      "rejected_count": 7,
+      "undistorted_median_x": 174.1881881189194,
+      "undistorted_median_y": 349.36654650764785,
+      "geometric_reprojection_rmse_px": 19.435889517894278,
+      "geometric_reprojection_median_px": 19.446327411786843,
+      "geometric_reprojection_max_px": 22.10368088037554,
+      "predicted_cm_median": 6.823433516358943,
+      "position_bias_cm": 0.8162245671764915,
+      "position_rmse_cm": 0.8184008796966099,
+      "position_max_abs_error_cm": 0.930988660050982,
+      "ray_axis_distance_median_cm": 0.14638047278782998,
+      "anomalous_fixed_line_position": true
+    },
+    {
+      "real_cm": 8.0,
+      "raw_count": 100,
+      "kept_count": 98,
+      "rejected_count": 2,
+      "undistorted_median_x": 150.35855914988537,
+      "undistorted_median_y": 342.06394602089335,
+      "geometric_reprojection_rmse_px": 3.437154555058649,
+      "geometric_reprojection_median_px": 3.3453342724721518,
+      "geometric_reprojection_max_px": 5.798247791253427,
+      "predicted_cm_median": 7.866361621664591,
+      "position_bias_cm": -0.1284364732104318,
+      "position_rmse_cm": 0.1335575532080722,
+      "position_max_abs_error_cm": 0.22870204887098566,
+      "ray_axis_distance_median_cm": 0.030476432516550335,
+      "anomalous_fixed_line_position": false
+    },
+    {
+      "real_cm": 10.0,
+      "raw_count": 100,
+      "kept_count": 96,
+      "rejected_count": 4,
+      "undistorted_median_x": 97.2230036767943,
+      "undistorted_median_y": 325.90248843730456,
+      "geometric_reprojection_rmse_px": 13.469190005951804,
+      "geometric_reprojection_median_px": 12.633360625213534,
+      "geometric_reprojection_max_px": 18.885559669369524,
+      "predicted_cm_median": 10.145110102678835,
+      "position_bias_cm": 0.15219437929506738,
+      "position_rmse_cm": 0.15785603267257942,
+      "position_max_abs_error_cm": 0.2523814183480333,
+      "ray_axis_distance_median_cm": 0.3008874110126951,
+      "anomalous_fixed_line_position": false
+    }
+  ],
+  "overall": {
+    "retained_sample_count": 1018,
+    "rejected_sample_count": 82,
+    "geometric_reprojection_rmse_px": 35.378513542226166,
+    "geometric_reprojection_max_px": 83.05762076896482,
+    "position_rmse_cm": 0.41946069138539527,
+    "position_max_abs_error_cm": 0.9346554414864294,
+    "position_rmse_mm": 4.194606913853953,
+    "position_max_abs_error_mm": 9.346554414864293,
+    "minimum_depth_cm": 18.407475260708697,
+    "anomalous_position_thresholds": {
+      "geometric_reprojection_rmse_px": 88.91322446279788,
+      "position_rmse_cm": 0.6176951662931701
+    },
+    "anomalous_positions_cm": [
+      0.0,
+      6.0
+    ],
+    "fixed_line_model_accepted": false
+  }
+}
